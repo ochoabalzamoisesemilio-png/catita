@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tarjeta Luna y Corazones</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fde7f1; --ink:#4a2354; --muted:#7a5a85; --panel:#fff;
+  --c1:#ff8fc0; --c2:#c9a7ff; --c3:#8fd3ff; --gold:#ffd25e;
+  --card-bg:linear-gradient(160deg,#fff6fb 0%,#ffd9ec 55%,#e6d6ff 100%);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#241532;--ink:#fbe9f4;--muted:#c9b0d6;--panel:#33204a;}
+}
+:root[data-theme="dark"]{--bg:#241532;--ink:#fbe9f4;--muted:#c9b0d6;--panel:#33204a;}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,sans-serif;min-height:100vh;padding:20px 14px 40px}
+main{max-width:760px;margin:0 auto;display:grid;gap:22px}
+h1{font-family:'Pacifico',cursive;font-weight:400;text-align:center;margin:6px 0 0;font-size:1.6rem}
+.hint{text-align:center;color:var(--muted);margin:0;font-size:.95rem}
+
+/* ---------- the card ---------- */
+.card{
+  position:relative;overflow:hidden;border-radius:28px;padding:34px 26px 30px;text-align:center;
+  background:var(--card-bg);color:#4a2354;
+  border:4px solid #fff;box-shadow:0 0 0 3px var(--c1),0 18px 40px rgba(120,60,140,.28);
+  min-height:560px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;
+}
+.card::before,.card::after{content:"";position:absolute;pointer-events:none}
+.card::before{inset:10px;border:2px dashed rgba(255,255,255,.9);border-radius:20px}
+.moon{width:96px;height:96px;position:relative;margin-bottom:2px}
+.moon svg{width:100%;height:100%;filter:drop-shadow(0 4px 6px rgba(255,170,60,.45))}
+.deco{position:absolute;font-size:1.4rem;user-select:none;pointer-events:none;opacity:.9}
+.d1{top:7%;left:9%;color:var(--c1)}.d2{top:11%;right:10%;color:var(--gold);font-size:1.1rem}
+.d3{bottom:9%;left:12%;color:var(--gold);font-size:1.2rem}.d4{bottom:8%;right:9%;color:var(--c1)}
+.d5{top:42%;left:5%;color:var(--c2);font-size:1rem}.d6{top:40%;right:5%;color:var(--c1);font-size:1.1rem}
+.hearts{letter-spacing:.35em;color:var(--c1);font-size:1.2rem;min-height:1.4em}
+.title{font-family:'Pacifico',cursive;font-size:clamp(1.9rem,7vw,2.8rem);line-height:1.15;margin:0;color:#c0328a}
+.to,.from{font-weight:700;font-size:1.05rem}
+.msg{font-size:.98rem;line-height:1.5;max-width:40ch;margin:2px 0}
+.card [contenteditable]{outline:none;border-radius:8px;padding:2px 6px;transition:background .15s}
+.card [contenteditable]:hover{background:rgba(255,255,255,.55)}
+.card [contenteditable]:focus{background:rgba(255,255,255,.85);box-shadow:0 0 0 2px var(--c2)}
+
+/* ---------- editor ---------- */
+.panel{background:var(--panel);border-radius:20px;padding:18px;display:grid;gap:14px;box-shadow:0 6px 18px rgba(120,60,140,.12)}
+.panel h2{margin:0;font-size:1.1rem;font-family:'Pacifico',cursive;font-weight:400}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+label{font-weight:700;font-size:.95rem}
+input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:transparent;border:2px solid var(--c2);border-radius:12px;padding:9px 12px}
+input[type=text]:focus,textarea:focus{outline:3px solid var(--c1);outline-offset:1px}
+textarea{resize:vertical;min-height:84px}
+.field{display:grid;gap:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.swatch{width:44px;height:44px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--ink);cursor:pointer;padding:0}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 4px var(--c1)}
+.chip{font:inherit;font-weight:700;padding:9px 14px;border-radius:999px;border:2px solid var(--c2);background:transparent;color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--c1);border-color:var(--c1);color:#3b1245}
+.chip:focus-visible,.swatch:focus-visible{outline:3px solid var(--c3);outline-offset:2px}
+button.reset{font:inherit;font-weight:700;padding:9px 16px;border-radius:999px;border:0;background:var(--c2);color:#2f1740;cursor:pointer}
+@media(prefers-reduced-motion:no-preference){
+  .moon{animation:float 4s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-6px)}}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Tu tarjeta mágica</h1>
+  <p class="hint">Toca cualquier texto de la tarjeta para escribir, o usa el panel de abajo.</p>
+
+  <section class="card" id="card" aria-label="Tarjeta">
+    <span class="deco d1">✦</span><span class="deco d2">★</span><span class="deco d3">✧</span>
+    <span class="deco d4">♥</span><span class="deco d5">✦</span><span class="deco d6">♥</span>
+    <div class="moon" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <path d="M70 12a40 40 0 1 0 0 76a32 32 0 1 1 0-76z" fill="#ffd25e" stroke="#ffb42e" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M66 50c0-6 6-9 9-5 3-4 9-1 9 5 0 7-9 12-9 12s-9-5-9-12z" fill="#ff6fae" stroke="#fff" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="hearts" id="hearts">♥ ♥ ♥</div>
+    <h2 class="title" id="title" contenteditable="true" spellcheck="false">Con el poder de la Luna</h2>
+    <div class="to" id="to" contenteditable="true" spellcheck="false">Para: Mi única estrella</div>
+    <p class="msg" id="msg" contenteditable="true" spellcheck="false">Gracias por siempre estar para mí. No me preguntes qué hago a estas horas haciéndote esto, solamente quería hacerte un recordatorio: siempre antes de dormir pienso en ti. El amor que te tengo es tan grande que siento que puedo opacar a todo el cosmos. Eres la estrella más brillante, la que guía mi vida y me la llena de felicidad. Espero que siempre nos amemos. Te amo.</p>
+    <div class="from" id="from" contenteditable="true" spellcheck="false">Con todo mi amor</div>
+  </section>
+
+  <section class="panel" aria-label="Editor">
+    <h2>Personaliza</h2>
+    <div class="grid2">
+      <div class="field"><label for="iTitle">Título</label><input type="text" id="iTitle"></div>
+      <div class="field"><label for="iTo">Para quién</label><input type="text" id="iTo"></div>
+    </div>
+    <div class="field"><label for="iMsg">Mensaje</label><textarea id="iMsg"></textarea></div>
+    <div class="field"><label for="iFrom">Firma</label><input type="text" id="iFrom"></div>
+
+    <div class="field">
+      <label>Color de la tarjeta</label>
+      <div class="row" id="themes"></div>
+    </div>
+
+    <div class="field">
+      <label>Corazones</label>
+      <div class="row" id="heartOpts"></div>
+    </div>
+
+    <div class="row">
+      <button class="chip" id="themeBtn" aria-pressed="false">Modo oscuro de la página</button>
+      <button class="reset" id="reset">Restablecer</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const defaults = {
+  title:"Con el poder de la Luna", to:"Para: Mi única estrella",
+  msg:"Gracias por siempre estar para mí. No me preguntes qué hago a estas horas haciéndote esto, solamente quería hacerte un recordatorio: siempre antes de dormir pienso en ti. El amor que te tengo es tan grande que siento que puedo opacar a todo el cosmos. Eres la estrella más brillante, la que guía mi vida y me la llena de felicidad. Espero que siempre nos amemos. Te amo.",
+  from:"Con todo mi amor", theme:0, hearts:1
+};
+const themes = [
+  {n:"Rosa luna",  bg:"linear-gradient(160deg,#fff6fb 0%,#ffd9ec 55%,#e6d6ff 100%)",c1:"#ff8fc0",c2:"#c9a7ff"},
+  {n:"Cielo",      bg:"linear-gradient(160deg,#f3fbff 0%,#cfe9ff 55%,#e3d9ff 100%)",c1:"#6fb7ff",c2:"#b9a2ff"},
+  {n:"Lavanda",    bg:"linear-gradient(160deg,#fbf6ff 0%,#e5d3ff 55%,#ffd3ea 100%)",c1:"#b07cff",c2:"#ff9ccd"},
+  {n:"Atardecer",  bg:"linear-gradient(160deg,#fff9e8 0%,#ffe0b5 50%,#ffc0d8 100%)",c1:"#ff9a6b",c2:"#ff8fc0"},
+  {n:"Noche",      bg:"linear-gradient(160deg,#3a2466 0%,#2b1a52 60%,#51266f 100%)",c1:"#ff8fc0",c2:"#ffd25e",dark:true}
+];
+const heartSets = ["♥","♥ ♥ ♥","♥ ♡ ♥ ♡ ♥","💗 💖 💗","(ninguno)"];
+const heartVal = ["","♥ ♥ ♥","♥ ♡ ♥ ♡ ♥","💗 💖 💗",""];
+let st = {...defaults};
+const KEY = "tarjeta-luna-v3";
+
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
+function load(){ try{ const s = localStorage.getItem(KEY); if(s) st = {...defaults, ...JSON.parse(s)}; }catch(e){} }
+
+function applyTheme(){
+  const t = themes[st.theme] || themes[0];
+  const card = $("card");
+  card.style.setProperty("--card-bg", t.bg);
+  card.style.setProperty("--c1", t.c1);
+  card.style.setProperty("--c2", t.c2);
+  card.style.color = t.dark ? "#fff0fa" : "#4a2354";
+  card.querySelector(".title").style.color = t.dark ? "#ffb8dc" : "#c0328a";
+  [...$("themes").children].forEach((b,i)=>b.setAttribute("aria-pressed", i===st.theme));
+}
+function applyHearts(){
+  $("hearts").textContent = heartVal[st.hearts] ?? "";
+  [...$("heartOpts").children].forEach((b,i)=>b.setAttribute("aria-pressed", i===st.hearts));
+}
+function fill(){
+  $("title").textContent = st.title; $("to").textContent = st.to;
+  $("msg").textContent = st.msg; $("from").textContent = st.from;
+  $("iTitle").value = st.title; $("iTo").value = st.to;
+  $("iMsg").value = st.msg; $("iFrom").value = st.from;
+  applyTheme(); applyHearts();
+}
+
+// build theme swatches + heart chips
+themes.forEach((t,i)=>{
+  const b = document.createElement("button");
+  b.className="swatch"; b.title=t.n; b.setAttribute("aria-label","Color "+t.n);
+  b.style.background=t.bg;
+  b.onclick=()=>{st.theme=i;applyTheme();save();};
+  $("themes").appendChild(b);
+});
+heartSets.forEach((h,i)=>{
+  const b = document.createElement("button");
+  b.className="chip"; b.textContent=h;
+  b.onclick=()=>{st.hearts=i;applyHearts();save();};
+  $("heartOpts").appendChild(b);
+});
+
+// two-way text binding (card <-> form)
+[["title","iTitle"],["to","iTo"],["msg","iMsg"],["from","iFrom"]].forEach(([k,inp])=>{
+  $(inp).addEventListener("input",e=>{ st[k]=e.target.value; $(k).textContent=st[k]; save(); });
+  $(k).addEventListener("input",e=>{ st[k]=e.target.textContent; $(inp).value=st[k]; save(); });
+  $(k).addEventListener("paste",e=>{ e.preventDefault(); document.execCommand("insertText",false,(e.clipboardData.getData("text/plain")||"")); });
+});
+
+// page light/dark
+$("themeBtn").onclick=()=>{
+  const dark = document.documentElement.getAttribute("data-theme")==="dark";
+  document.documentElement.setAttribute("data-theme", dark?"light":"dark");
+  $("themeBtn").setAttribute("aria-pressed", !dark);
+};
+$("reset").onclick=()=>{ st={...defaults}; fill(); save(); };
+
+load(); fill();
+</script>
+</body>
+</html>
